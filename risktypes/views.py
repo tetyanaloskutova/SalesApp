@@ -4,7 +4,7 @@ from rest_framework.decorators import list_route, detail_route
 from rest_framework.response import Response
 
 from .serializers import RiskTypeSerializer, RiskFieldSerializer, UserSerializer
-from .permissions import IsStaffOrOwner
+from .permissions import IsStaffOrOwner, IsStaffOrOwnerField
 from risktypes import models
 from rest_framework import generics
 from django.shortcuts import render
@@ -13,13 +13,13 @@ from django.shortcuts import render
 	
 class RiskFieldViewSet(viewsets.ModelViewSet):
 	serializer_class = RiskFieldSerializer
-	permission_classes = (IsStaffOrOwner,)
+	permission_classes = (IsStaffOrOwnerField,)
 
 	def get_queryset(self):
 		if self.request.user.is_superuser:
 			return models.RiskField.objects.all()
 		else:
-			return self.request.user.user_riskfield.all()
+			return models.RiskField.objects.filter(user_riskfield=self.request.user)
 
 	def perform_create(self, serializer):
 		serializer.save(user_riskfield=self.request.user)
@@ -32,7 +32,7 @@ class RiskTypeViewSet(viewsets.ModelViewSet):
 		if self.request.user.is_superuser:
 			return models.RiskType.objects.all()
 		else:
-			return self.request.user.user_risktype.all()
+			return models.RiskType.objects.all() #filter(user_risktype = self.request.user)
 
 	def perform_create(self, serializer):
 		serializer.save(user_risktype = self.request.user)
