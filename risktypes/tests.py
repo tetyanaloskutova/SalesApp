@@ -50,7 +50,7 @@ class RiskModelTestCase(TestCase):
 		
 
 		
-class RiskTypeTests(APITestCase):
+class RiskTypeViewsTests(APITestCase):
 	def setUp(self):
 		self.defaultUser = User.objects.create_superuser(username='testuser', email = 'd@d.com', password='12345678')
 		
@@ -62,10 +62,15 @@ class RiskTypeTests(APITestCase):
 		risktype = RiskType.objects.create(user_risktype = self.defaultUser, name="Test risk type", description="Test risk type")
 		response = risktype_detail(request, pk=risktype.pk)
 		self.assertEqual(response.status_code, 200)        
-		
+	
+	def test_listable(self):
+		request = APIRequestFactory().get("")
+		risktype_list = RiskTypeViewSet.as_view({'get': 'list'})
+		response = risktype_list(request)
+		self.assertEqual(response.status_code, 200)
 		
 
-class RiskFieldTests(APITestCase):
+class RiskFieldViewsTests(APITestCase):
 	def setUp(self):
 		self.defaultUser = User.objects.create_superuser(username='testuser', email = 'd@d.com', password='12345678')
 		
@@ -80,4 +85,12 @@ class RiskFieldTests(APITestCase):
 		response = riskfield_detail(request, pk=riskfield.pk)
 		self.assertEqual(response.status_code, 200)        
 		
-
+	
+	def test_listable(self):
+		request = APIRequestFactory().get("")
+		user = User.objects.get(username='testuser')
+		force_authenticate(request, user=user)
+		
+		riskfield_list = RiskFieldViewSet.as_view({'get': 'list'})
+		response = riskfield_list(request)
+		self.assertEqual(response.status_code, 200)
