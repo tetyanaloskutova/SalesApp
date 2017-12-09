@@ -1,0 +1,131 @@
+# This example will allow you to manipluate a RiskType and a RiskField via various endpoints
+# /risktypes - All endpoints
+# /risktypes/risktypes - RiskTypes list
+# /risktypes/risktypes/(?P<pk>\d+) - RiskType detail
+# /risktypes/risktypes/(?P<pk>\d+)/riskfields - List of riskfields of risktype
+# /risktypes/riskfields - RiskField list
+# /risktypes/riskfields/(?P<pk>\d+) - RiskField Detail
+
+# Models - models.py
+# Pretty simple setup. RiskFields have a FK to RiskType. RiskEnum has a FK to RiskField
+
+from django.db import models
+from django.contrib.auth.models import User
+
+class RiskType(models.Model):
+	user = models.ForeignKey(User, related_name="user_risktype")
+	# other fields
+
+	class Meta:
+		verbose_name = 'RiskType'
+		verbose_name_plural = 'RiskTypes'
+
+class RiskField(models.Model):
+	user = models.ForeignKey(User, related_name="user_riskfield")
+	risktype = models.ForeignKey(RiskType, related_name="risktype_riskfield")
+	# other fields
+
+	class Meta:
+		verbose_name = 'RiskField'
+		verbose_name_plural = 'RiskFields'
+
+# Permisions - permissions.py
+# Basic permisions
+
+from rest_framework.permissions import BasePermission, SAFE_METHODS
+
+class IsStaffOrOwner(BasePermission):
+	def has_permission(self, request, view):
+		# allow user to list all users if logged in user is staff
+		return view.action == 'retrieve' or 'create' or request.user.is_staff
+
+	def has_object_permission(self, request, view, obj):
+		return request.user.is_staff or request.user == obj.user
+
+# Serializers - serializers.py
+
+from django.contrib.auth.models import User
+from rest_framework import serializers
+from risktypes import models
+
+
+class RiskFieldSerializer(serializers.HyperlinkedModelSerializer):
+	user_riskfield = serializers.HyperlinkedRelatedField(view_name="user-detail", read_only=True)
+
+	class Meta:
+		model = models.RiskField
+		fields = ('id', 'url', 'user',)
+
+class RiskTypeSerializer(serializers.HyperlinkedModelSerializer):
+	risktype_riskfield = serializers.HyperlinkedRelatedField(many=True, required=False, view_name='riskfield-detail')
+	user_risktype = serializers.HyperlinkedRelatedField(view_name="user-detail", read_only=True)
+
+	class Meta:
+		model = models.RiskType
+		fields = ('id', 'url', 'user', 'risktype_riskfield')
+
+# API Views - views.py
+
+from django.contrib.auth.models import User
+from rest_framework import viewsets
+from rest_framework.decorators import list_route, detail_route
+from rest_framework.response import Response
+
+from .serializers import RiskTypeSerializer, RiskFieldSerializer
+from .permissions import IsStaffOrOwner
+from risktypes import models
+
+class RiskFieldViewSet(viewsets.ModelViewSet):
+	serializer_class = RiskFieldSerializer
+	permission_classes = (IsStaffOrOwner,)
+
+	def get_queryset(self):
+		if self.request.user.is_superuser:
+			return models.RiskField.objects.all()
+		else:
+			return self.request.user.user_riskfield.all()
+
+	def pre_save(self, obj):
+		obj.user = self.request.user
+
+class RiskTypeViewSet(viewsets.ModelViewSet):
+	serializer_class = RiskTypeSerializer
+	permission_classes = (IsStaffOrOwner,)
+
+	def get_queryset(self):
+		if self.request.user.is_superuser:
+			return models.RiskType.objects.all()
+		else:
+			return self.request.user.user_risktype.all()
+
+	def pre_save(self, obj):
+		obj.user = self.request.user
+
+	# The detail_route allows me to see all the riskfields of a risk type
+	# with the following URL: /risktypes/risktypes/(?P<pk>\d+)/riskfields
+
+	@detail_route()
+	def riskfields(self, request, pk):
+		risktype = self.get_object(pk)
+		riskfields = risktype.risktype_riskfield.all()
+		serializer = RiskFieldSerializer(hints)
+		return Response(serializer.data)
+
+# API URLS - urls.py
+
+from django.conf.urls import patterns, include, url
+from rest_framework.routers import DefaultRouter
+
+from .risktypes.risktypes import views as risktypes_views
+
+router = DefaultRouter(trailing_slash=False)
+router.register(r'riskfields', risktypes_views.RiskFieldViewSet, base_name="riskfield")
+router.register(r'risktype', risktypes_views.TaskViewSet, base_name="risktype")
+
+urlpatterns = patterns('',
+
+    # API URIs
+    url(r'^risktypes/', include(router.urls)),
+    url(r'^risktypes-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    
+)
