@@ -3,3 +3,5 @@ risktypes/migrations/
 *.zip
 db.sqlite3
 FlexInsureProj/__pycache__/
+risktypes/__pycache__/
+*.js
