@@ -7,7 +7,10 @@ from .serializers import RiskTypeSerializer, RiskFieldSerializer, UserSerializer
 from .permissions import IsStaffOrOwner
 from risktypes import models
 from rest_framework import generics
+from django.shortcuts import render
 
+
+	
 class RiskFieldViewSet(viewsets.ModelViewSet):
 	serializer_class = RiskFieldSerializer
 	permission_classes = (IsStaffOrOwner,)
@@ -53,3 +56,10 @@ class UserList(generics.ListAPIView):
 class UserDetail(generics.RetrieveAPIView):
 	queryset = User.objects.all()
 	serializer_class = UserSerializer
+	
+	
+def index(request):
+	context = {
+		'days': ['one', 'two', 'thress'],
+	}
+	return render(request, 'risktype.html', context)	

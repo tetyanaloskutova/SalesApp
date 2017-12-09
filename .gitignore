@@ -2,3 +2,5 @@
 risktypes/migrations/
 *.pyc
 *.pyc
+db.sqlite3
+FlexInsureProj/__pycache__/
