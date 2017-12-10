@@ -1,6 +1,6 @@
 Using the app:
 
-The app could be built locally, the requirements are django and djangorestframework. Builfing the app would require
+The app could be built locally, the requirements are django (2.0) and djangorestframework (3.7.3). Building the app from git source would require the following actions:
 
 python manage.py migrate
 python manage.py makemigrations risktypes
