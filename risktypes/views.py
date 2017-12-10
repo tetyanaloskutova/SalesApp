@@ -58,8 +58,71 @@ class UserDetail(generics.RetrieveAPIView):
 	serializer_class = UserSerializer
 	
 	
-def index(request):
+def index(request, pk):
 	context = {
-		'days': ['one', 'two', 'thress'],
+	    'title':pk,
+		'enum_values': ['red','blue','yellow'],
+		'fields': [{
+            "id": 1,
+            "url": "http://127.0.0.1:8000/risktypes/riskfield/1",
+            "user_riskfield": "http://127.0.0.1:8000/risktypes/users/6/",
+            "risktype": "http://127.0.0.1:8000/risktypes/risktype/1",
+            "name": "test",
+            "description": "test",
+            "type": 1,
+            "length": 256,
+            "len_decim": 0,
+            "order": 1,
+            "min_value": 0,
+            "max_value": 256,
+            "is_nullable": 'true',
+            "enum_values": []
+        },
+        {
+            "id": 2,
+            "url": "http://127.0.0.1:8000/risktypes/riskfield/2",
+            "user_riskfield": "http://127.0.0.1:8000/risktypes/users/6/",
+            "risktype": "http://127.0.0.1:8000/risktypes/risktype/1",
+            "name": "test 2",
+            "description": "test2",
+            "type": 2,
+            "length": 256,
+            "len_decim": 0,
+            "order": 2,
+            "min_value": 0,
+            "max_value": 256,
+            "is_nullable": 'true',
+            "enum_values": []
+        },{
+            "id": 3,
+            "url": "http://127.0.0.1:8000/risktypes/riskfield/2",
+            "user_riskfield": "http://127.0.0.1:8000/risktypes/users/6/",
+            "risktype": "http://127.0.0.1:8000/risktypes/risktype/1",
+            "name": "test 3",
+            "description": "test2",
+            "type": 3,
+            "length": 256,
+            "len_decim": 0,
+            "order": 3,
+            "min_value": 0,
+            "max_value": 256,
+            "is_nullable": 'true',
+            "enum_values": []
+        },{
+            "id": 4,
+            "url": "http://127.0.0.1:8000/risktypes/riskfield/2",
+            "user_riskfield": "http://127.0.0.1:8000/risktypes/users/6/",
+            "risktype": "http://127.0.0.1:8000/risktypes/risktype/1",
+            "name": "test 4",
+            "description": "test2",
+            "type": 4,
+            "length": 256,
+            "len_decim": 0,
+            "order": 4,
+            "min_value": 0,
+            "max_value": 256,
+            "is_nullable": 'true',
+            "enum_values": ['red','blue','yellow']
+        },],
 	}
 	return render(request, 'risktype.html', context)	

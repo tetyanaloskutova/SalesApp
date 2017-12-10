@@ -1,10 +1,32 @@
 {% extends 'index.html' %}
 {% block content %}
 <div id=app>
-    <p>[[ title ]]</p>
+    <p>{{ title }}</p>
     <ul>
-        <li v-for="day in {{days}}">
-            <h4> Day [[ day ]]</h4>
+        <li v-for="fld in {{fields}}">
+            <h4> [[ fld.name ]]</h4>
+			<div v-if="fld.type == 1">
+				<div v-if="fld.length < 256">
+					<input v-model="field_text" placeholder="text input">
+				</div>	
+				<div v-else>
+					<textarea v-model="field_text" placeholder="add multiple lines"></textarea>
+				</div>
+			</div>
+			<div v-else-if="fld.type == 2">
+				<input v-model="field_num" placeholder="number input">
+			</div>
+			<div v-else-if="fld.type == 3">
+				<input type="date" v-model="field_date">
+			</div>
+			<div v-else>
+				
+				<select v-model="field_select">
+					<option v-for="option in {{enum_values}}">
+						[[ option ]]
+					</option>
+				</select>
+			</div>
         </li>
     </ul>
 </div>
@@ -13,8 +35,7 @@
         delimiters: ['[[', ']]'],
         el: '#app',
         data: {
-            title: 'Risktype 1',
-            days: [1, 2, 3]
+            title1: 'Risktype 1'
         }
     })
 </script>
