@@ -8,6 +8,8 @@ from .permissions import IsStaffOrOwner, IsStaffOrOwnerField
 from risktypes import models
 from rest_framework import generics
 from django.shortcuts import render
+from django.forms.models import model_to_dict
+
 
 
 	
@@ -59,70 +61,20 @@ class UserDetail(generics.RetrieveAPIView):
 	
 	
 def index(request, pk):
-	context = {
-	    'title':pk,
-		'enum_values': ['red','blue','yellow'],
-		'fields': [{
-            "id": 1,
-            "url": "http://127.0.0.1:8000/risktypes/riskfield/1",
-            "user_riskfield": "http://127.0.0.1:8000/risktypes/users/6/",
-            "risktype": "http://127.0.0.1:8000/risktypes/risktype/1",
-            "name": "test",
-            "description": "test",
-            "type": 1,
-            "length": 256,
-            "len_decim": 0,
-            "order": 1,
-            "min_value": 0,
-            "max_value": 256,
-            "is_nullable": 'true',
-            "enum_values": []
-        },
-        {
-            "id": 2,
-            "url": "http://127.0.0.1:8000/risktypes/riskfield/2",
-            "user_riskfield": "http://127.0.0.1:8000/risktypes/users/6/",
-            "risktype": "http://127.0.0.1:8000/risktypes/risktype/1",
-            "name": "test 2",
-            "description": "test2",
-            "type": 2,
-            "length": 256,
-            "len_decim": 0,
-            "order": 2,
-            "min_value": 0,
-            "max_value": 256,
-            "is_nullable": 'true',
-            "enum_values": []
-        },{
-            "id": 3,
-            "url": "http://127.0.0.1:8000/risktypes/riskfield/2",
-            "user_riskfield": "http://127.0.0.1:8000/risktypes/users/6/",
-            "risktype": "http://127.0.0.1:8000/risktypes/risktype/1",
-            "name": "test 3",
-            "description": "test2",
-            "type": 3,
-            "length": 256,
-            "len_decim": 0,
-            "order": 3,
-            "min_value": 0,
-            "max_value": 256,
-            "is_nullable": 'true',
-            "enum_values": []
-        },{
-            "id": 4,
-            "url": "http://127.0.0.1:8000/risktypes/riskfield/2",
-            "user_riskfield": "http://127.0.0.1:8000/risktypes/users/6/",
-            "risktype": "http://127.0.0.1:8000/risktypes/risktype/1",
-            "name": "test 4",
-            "description": "test2",
-            "type": 4,
-            "length": 256,
-            "len_decim": 0,
-            "order": 4,
-            "min_value": 0,
-            "max_value": 256,
-            "is_nullable": 'true',
-            "enum_values": ['red','blue','yellow']
-        },],
-	}
+	risktype = models.RiskType.objects.get(pk=pk)
+	riskfields = risktype.risktype_riskfield.all().order_by('order')
+			
+	#enum_list = []	
+	context_fields = []	
+	for riskfield in riskfields:
+		#if riskfield.enum_values:
+		#	 enum_list = riskfield.enum_values.split(";")
+		context_fields.append(model_to_dict(riskfield, fields=['id','name', 'type','length','enum_values']))
+		
+	context = {}
+	context['title'] = risktype.name
+	#context['enum_values'] = enum_list[:]
+	context['fields'] = context_fields
+	
+
 	return render(request, 'risktype.html', context)	

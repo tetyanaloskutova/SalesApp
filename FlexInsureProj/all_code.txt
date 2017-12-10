@@ -21,7 +21,7 @@ class RiskType(models.Model):
 		verbose_name_plural = 'RiskTypes'
 
 class RiskField(models.Model):
-	user = models.ForeignKey(User, related_name="user_riskfield")
+	user = models.ForeignKey(User, related_name="+")
 	risktype = models.ForeignKey(RiskType, related_name="risktype_riskfield")
 	# other fields
 
@@ -129,3 +129,72 @@ urlpatterns = patterns('',
     url(r'^risktypes-auth/', include('rest_framework.urls', namespace='rest_framework')),
     
 )
+
+
+////tests
+
+
+		
+class RiskViewTestCase(APITestCase):
+	def setUp(self):
+		self.defaultUser = User.objects.create_user(username='testuser', password='12345678')
+		self.risktype_data = {"id": 1,
+			"url": "http://daana.pythonanywhere.com/risktypes/risktype/1",
+			"user_risktype": "http://daana.pythonanywhere.com/risktypes/users/1/",
+			"risktype_riskfield": [],
+			"name": "risktype 1",
+			"description": "risktype 1"}
+	
+	
+	def test_create_risktype(self):
+		"""
+		Ensure we can create a new RiskType object.
+		"""
+		url = reverse('risktype-list')
+		data = {'user_risktype' : self.defaultUser, 'name': 'test', 'description': 'test'}
+		response = self.client.post(url, data, format='json')
+		self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+		self.assertEqual(RiskType.objects.count(), 1)
+		self.assertEqual(RiskType.objects.get().name, 'test')
+		
+		
+		
+		
+
+	def test_api_can_update_risktype(self):
+		"""Test the api can update a given risktype """
+		risktype = RiskType.objects.get(name = 'test')
+		change_risktype = {'description': 'new description'}
+		res = self.client.put(
+			reverse('details', kwargs={'pk': risktype.id}),
+			change_risktype, format='json'
+		)
+		self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+		
+
+class GetAllTiskTypesTest(TestCase):
+	def setUp(self):
+		self.defaultUser = User.objects.create_user(username='testuser', password='12345678')
+		
+
+	def test_api_can_get_a_risktype(self):
+		"""Test the api can get a given risktype."""
+		factory = APIRequestFactory()
+		user = User.objects.get(username='testuser')
+
+		view = RiskFieldViewSet.get_queryset().as_view()
+		request = factory.get('/risktypes/risktype/')
+		force_authenticate(request, user=user)
+		response = view(request)
+		
+		risktype = RiskType(user_risktype = self.defaultUser, name="Test risk type", description="Test risk type")
+		risktype.save()
+		
+		response = self.client.get(
+			reverse('risktype-detail',
+			kwargs={'pk': risktype.id}), format="json")
+		
+		--self.assertEqual(response.status_code, status.HTTP_200_OK)
+		self.assertContains(response, risktype)
+		
