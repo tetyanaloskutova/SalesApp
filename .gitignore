@@ -5,3 +5,6 @@ db.sqlite3
 FlexInsureProj/__pycache__/
 risktypes/__pycache__/
 *.js
+*.sqlite3
+FlexInsureProj/all_code.txt
+*.pyc
