@@ -19,6 +19,10 @@ class RiskType(models.Model):
 		verbose_name_plural = 'RiskTypes'
 
 class RiskField(models.Model):
+	""" Field model makes provisions for thorough validation of the input.
+	Some of the validations are implemented on display (risktype.html) while
+	others would be possible when the data is submitted.
+	"""
 	user_riskfield = models.ForeignKey(User, related_name="+", on_delete = models.CASCADE,)
 	risktype = models.ForeignKey(RiskType, related_name="risktype_riskfield", on_delete = models.CASCADE,)
 	

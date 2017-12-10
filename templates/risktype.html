@@ -9,14 +9,14 @@
             <h4> [[ fld.name ]]</h4>
 			<div v-if="fld.type == 1">
 				<div v-if="fld.length < 256">
-					<input v-model="field_text" placeholder="text input">
+					<input v-model="field_text" placeholder="text input" v-bind:maxlength="fld.length">
 				</div>	
 				<div v-else>
 					<textarea v-model="field_text" placeholder="add multiple lines"></textarea>
 				</div>
 			</div>
 			<div v-else-if="fld.type == 2">
-				<input v-model.number="field_num" type="number" placeholder="number input">
+				<input v-model.number="field_num" type="number" placeholder="number input" v-bind:maxlength="fld.length" v-bind:min="fld.min_value" v-bind:max="fld.max_value">
 			</div>
 			<div v-else-if="fld.type == 3">
 				<input type="date" v-model="field_date">

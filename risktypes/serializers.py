@@ -3,16 +3,17 @@ from rest_framework import serializers
 from risktypes import models
 
 class UserSerializer(serializers.ModelSerializer):
-	#risktypes = serializers.PrimaryKeyRelatedField(many=True, queryset=models.RiskType.objects.all())
-	#url = serializers.HyperlinkedIdentityField(view_name="user-detail")
-
+	
 	class Meta:
 		model = User
-		#fields = ('url', 'username')
 		fields = '__all__'# ('id', 'username', 'risktypes')
 
 		
 class RiskFieldSerializer(serializers.HyperlinkedModelSerializer):
+	""" Validations on the correct combinations of field formats (i.e. min_value is valid for date but not for text,
+	length is valid for text but not for enum, etc.) were not implemented as this was not mentioned as part of the task.
+	
+	"""
 	user_riskfield = serializers.HyperlinkedRelatedField(view_name="user-detail", read_only=True)
 
 	class Meta:

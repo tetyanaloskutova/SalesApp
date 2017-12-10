@@ -15,5 +15,6 @@ urlpatterns = [
     url(r'^risktypes-auth/', include('rest_framework.urls', namespace='rest_framework')),
    	url(r'^users/$',  UserList.as_view(),name='user-list'),
     url(r'^users/(?P<pk>[0-9]+)/$', UserDetail.as_view(), name='user-detail'),
+	# URL that shows formatted fields for a particular risk type identified by PK (Task 3)
 	url(r'^index/(?P<pk>[0-9]+)/$', index, name='index'),
 ]

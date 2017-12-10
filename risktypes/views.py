@@ -64,16 +64,12 @@ def index(request, pk):
 	risktype = models.RiskType.objects.get(pk=pk)
 	riskfields = risktype.risktype_riskfield.all().order_by('order')
 			
-	#enum_list = []	
 	context_fields = []	
 	for riskfield in riskfields:
-		#if riskfield.enum_values:
-		#	 enum_list = riskfield.enum_values.split(";")
 		context_fields.append(model_to_dict(riskfield, fields=['id','name', 'type','length','enum_values']))
 		
 	context = {}
 	context['title'] = risktype.name
-	#context['enum_values'] = enum_list[:]
 	context['fields'] = context_fields
 	
 

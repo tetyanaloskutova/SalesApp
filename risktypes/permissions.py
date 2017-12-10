@@ -3,7 +3,7 @@ from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 class IsStaffOrOwner(BasePermission):
 	def has_permission(self, request, view):
-		# allow user to list all users if logged in user is staff
+		# allow user to retrieve any/create new risktype if logged-in user is staff
 		return view.action == 'retrieve' or 'create' or request.user.is_staff
 
 	def has_object_permission(self, request, view, obj):
@@ -13,7 +13,7 @@ class IsStaffOrOwner(BasePermission):
 
 class IsStaffOrOwnerField(BasePermission):
 	def has_permission(self, request, view):
-		# allow user to list all users if logged in user is staff
+		# allow user to retrieve any/create new riskfield if logged-in user is staff
 		return view.action == 'retrieve' or 'create' or request.user.is_staff
 
 	def has_object_permission(self, request, view, obj):
