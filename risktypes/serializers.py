@@ -17,7 +17,7 @@ class RiskFieldSerializer(serializers.HyperlinkedModelSerializer):
 
 	class Meta:
 		model = models.RiskField
-		fields = ('id', 'url', 'user_riskfield','name','description')
+		fields = ('id', 'url', 'user_riskfield', 'risktype', 'name','description', 'type', 'length', 'len_decim', 'order', 'min_value', 'max_value', 'is_nullable', 'enum_values')
 
 class RiskTypeSerializer(serializers.HyperlinkedModelSerializer):
 	risktype_riskfield = serializers.HyperlinkedRelatedField(many=True, required=False, view_name='riskfield-detail', read_only=True)
