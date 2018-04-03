@@ -1,10 +1,11 @@
 *.pyc
-risktypes/migrations/
+saleaccounts/migrations/
 *.zip
 db.sqlite3
-FlexInsureProj/__pycache__/
-risktypes/__pycache__/
+SalesAppProj/__pycache__/
+saleaccounts/__pycache__/
 *.js
 *.sqlite3
-FlexInsureProj/all_code.txt
+SalesAppProj/all_code.txt
 *.pyc
+saleaccounts/credentials
