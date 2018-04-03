@@ -16,7 +16,7 @@ class RiskType(models.Model):
 
 	class Meta:
 		verbose_name = 'RiskType'
-		verbose_name_plural = 'RiskTypes'
+		verbose_name_plural = 'salesaccounts'
 
 class RiskField(models.Model):
 	""" Field model makes provisions for thorough validation of the input.

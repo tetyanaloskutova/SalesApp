@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 from rest_framework.test import force_authenticate
 from rest_framework.test import APIRequestFactory
-from risktypes.views import RiskTypeViewSet, RiskFieldViewSet
+from salesaccounts.views import RiskTypeViewSet, RiskFieldViewSet
 
 class RiskModelTestCase(TestCase):
 	"""This class defines the test suite for the RiskType/RiskField model."""

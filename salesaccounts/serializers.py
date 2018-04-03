@@ -1,12 +1,12 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from risktypes import models
+from salesaccounts import models
 
 class UserSerializer(serializers.ModelSerializer):
 	
 	class Meta:
 		model = User
-		fields = '__all__'# ('id', 'username', 'risktypes')
+		fields = '__all__'# ('id', 'username', 'salesaccounts')
 
 		
 class RiskFieldSerializer(serializers.HyperlinkedModelSerializer):

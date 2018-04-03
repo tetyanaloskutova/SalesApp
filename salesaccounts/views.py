@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 from .serializers import RiskTypeSerializer, RiskFieldSerializer, UserSerializer
 from .permissions import IsStaffOrOwner, IsStaffOrOwnerField
-from risktypes import models
+from salesaccounts import models
 from rest_framework import generics
 from django.shortcuts import render
 from django.forms.models import model_to_dict
@@ -40,7 +40,7 @@ class RiskTypeViewSet(viewsets.ModelViewSet):
 		serializer.save(user_risktype = self.request.user)
 
 	# The detail_route allows me to see all the riskfields of a risk type
-	# with the following URL: /risktypes/risktype/(?P<pk>\d+)/riskfields
+	# with the following URL: /salesaccounts/risktype/(?P<pk>\d+)/riskfields
 
 	@detail_route(url_path='formatted')
 	def riskanswer(self, request, pk):

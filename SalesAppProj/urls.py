@@ -1,11 +1,11 @@
-"""FlexInsureProj URL Configuration
+"""SalesAppProj URL Configuration
 
-Risktypes application is available at risktypes/ url
+salesaccounts application is available at salesaccounts/ url
 """
 from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-	path('risktypes/', include('risktypes.urls')),
+	path('salesaccounts/', include('salesaccounts.urls')),
 ]
