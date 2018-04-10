@@ -9,21 +9,16 @@ class UserSerializer(serializers.ModelSerializer):
 		fields = '__all__'# ('id', 'username', 'salesaccounts')
 
 		
-class RiskFieldSerializer(serializers.HyperlinkedModelSerializer):
-	""" Validations on the correct combinations of field formats (i.e. min_value is valid for date but not for text,
-	length is valid for text but not for enum, etc.) were not implemented as this was not mentioned as part of the task.
-	
-	"""
+class AccountSerializer(serializers.HyperlinkedModelSerializer):
 	user_riskfield = serializers.HyperlinkedRelatedField(view_name="user-detail", read_only=True)
 
 	class Meta:
-		model = models.RiskField
-		fields = ('id', 'url', 'user_riskfield', 'risktype', 'name','description', 'type', 'length', 'len_decim', 'order', 'min_value', 'max_value', 'is_nullable', 'enum_values')
+		model = models.Account
+		fields = '__all__'
 
-class RiskTypeSerializer(serializers.HyperlinkedModelSerializer):
-	risktype_riskfield = serializers.HyperlinkedRelatedField(many=True, required=False, view_name='riskfield-detail', read_only=True)
+class PersonSerializer(serializers.HyperlinkedModelSerializer):
 	user_risktype = serializers.HyperlinkedRelatedField(view_name="user-detail", read_only=True)
 
 	class Meta:
-		model = models.RiskType
-		fields = ('id', 'url', 'user_risktype', 'risktype_riskfield','name','description')
+		model = models.Person
+		fields = '__all__'

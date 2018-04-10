@@ -9,3 +9,7 @@ saleaccounts/__pycache__/
 SalesAppProj/all_code.txt
 *.pyc
 saleaccounts/credentials
+*.csv
+*.xls
+*.xlsx
+data/
