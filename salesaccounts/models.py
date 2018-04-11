@@ -3,6 +3,7 @@ from django.db import models
 from django.utils import timezone
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import User
+from simple_history.models import HistoricalRecords
 
 """
 TO DO: change models.CASCADE to models.SET_NULL
@@ -12,10 +13,20 @@ class CREmployee(models.Model):
 		
 	name = models.CharField(max_length=256)
 	short_name = models.CharField(max_length=256)
+	history = HistoricalRecords()
+
+	
 	timezone.make_aware(timezone.datetime.max, timezone.get_default_timezone())
 	
 	date_deleted = models.DateTimeField(default=timezone.datetime.max)
+	
+	def __str__(self):
+		return '{0} ({1})'.format(self.name, self.short_name)
 		
+	
+	class Meta:
+		verbose_name = 'CR Employee'
+		verbose_name_plural = 'CR Employees'	
 
 
 class Account(models.Model):
@@ -43,11 +54,17 @@ class Account(models.Model):
 	account_manager = models.ForeignKey(CREmployee, related_name="+", null = True, on_delete = models.SET_NULL,)
 	
 	date_created = models.DateTimeField(default=timezone.now)
+	history = HistoricalRecords()
+
+	
 	timezone.make_aware(timezone.datetime.max, timezone.get_default_timezone())
-	
-	
 	date_deleted = models.DateTimeField(default=timezone.datetime.max)
 
+	
+	def __str__(self):
+		return '{0}'.format(self.name)
+	
+	
 	class Meta:
 		verbose_name = 'Account'
 		verbose_name_plural = 'Accounts'
@@ -80,15 +97,19 @@ class AccountPerson(models.Model):
 	timezone.make_aware(timezone.datetime.max, timezone.get_default_timezone())
 	
 	date_deleted = models.DateTimeField(default=timezone.datetime.max)
-
+	
+	
 
 class ServiceType(models.Model):
 	user_account = models.ForeignKey(User, related_name="+", on_delete = models.CASCADE,)
 	
 	service_type = models.CharField(max_length=256)
 	service_name = models.TextField(default = '')
+	history = HistoricalRecords()
 			
-
+	def __str__(self):
+		return '{0}: {1}'.format(self.service_type, self.service_name)
+	
 			
 		
 class SalesLead(models.Model):
@@ -123,13 +144,18 @@ class SalesLead(models.Model):
 	status_reason = models.CharField(max_length=256)
 	actual_close_date = models.DateTimeField(default=timezone.now, null=True)
 	est_revenue_GBP	= models.FloatField()
-	description	= models.TextField(default = '')
+	description	= models.TextField(default = '', null=True)
 	
-	sales_narrative = models.TextField(default = '')
+	sales_narrative = models.TextField(default = '', null=True)
+	history = HistoricalRecords()
+
+	
+	def __str__(self):
+		return '{0}: {1} - ({2}): {3}'.format(self.CRM_id, self.account, self.created_on, self.status)
 	
 	class Meta:
-		verbose_name = 'SalesLead'
-		verbose_name_plural = 'SalesLeads'
+		verbose_name = 'Sales Lead'
+		verbose_name_plural = 'Sales Leads'
 
 		
 class Project(models.Model):

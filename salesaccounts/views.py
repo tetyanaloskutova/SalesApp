@@ -118,6 +118,14 @@ def import_accounts(request):
 		account.region = row[4]
 		account.save()
 		
+	account = models.Account()
+	account.name = 'Undefined'
+	account.user_account = request.user
+	account.sector = 'Undefined'
+	account.relationship_status = 'Undefined'
+	account.region = 'Undefined'
+	account.save()
+		
 	accounts = models.Account.objects.all()
 	return Response([account.name for account in accounts])
 	
@@ -155,7 +163,8 @@ def import_leads(request):
 		try:
 			lead.account = models.Account.objects.get(name = row[1])
 		except:
-			lead.account = None
+			lead.account = models.Account.objects.get(name = 'Undefined')
+			
 		lead.country	= row[2]
 		
 		try:
