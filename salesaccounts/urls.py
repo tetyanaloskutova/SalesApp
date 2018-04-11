@@ -6,8 +6,8 @@ from rest_framework.routers import DefaultRouter
 from salesaccounts.views import *
 
 router = DefaultRouter(trailing_slash=False)
-router.register(r'account', AccountViewSet, base_name="account")
-router.register(r'person', PersonViewSet, base_name="person")
+#router.register(r'account', AccountViewSet, base_name="account")
+#router.register(r'person', PersonViewSet, base_name="person")
 
 urlpatterns = [
     # API URIs
