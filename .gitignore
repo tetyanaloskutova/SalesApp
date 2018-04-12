@@ -13,3 +13,4 @@ saleaccounts/credentials
 *.xls
 *.xlsx
 data/
+static/

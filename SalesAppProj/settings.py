@@ -25,7 +25,7 @@ SECRET_KEY = 'a@@o9gyvdqj$t@^wp#j-cf7-*#68_gs=)c%dyg#@cc6-91eup='
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'daana.pythonanywhere.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'salesapp.pythonanywhere.com']
 
 
 # Application definition
@@ -129,3 +129,6 @@ REST_FRAMEWORK = {
 	'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 10
 }
+MEDIA_URL = '/media/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
