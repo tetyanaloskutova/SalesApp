@@ -12,7 +12,8 @@ from django.forms.models import model_to_dict
 import csv
 from rest_framework.decorators import api_view
 from datetime import datetime
-
+import pandas as pd
+import string
 	
 class AccountViewSet(viewsets.ModelViewSet):
 	serializer_class = AccountSerializer
@@ -80,16 +81,18 @@ def index(request, pk):
 @api_view(['GET',])
 def import_services(request):
 
-	serviceTypes = models.ServiceType.objects.all()
-	if (len(serviceTypes)>0):
-		return Response('serviceTypes not empty')
-	dataReader = csv.reader(open('service.csv'), delimiter=',') 
-	for row in dataReader: 
-		serviceType = models.ServiceType() 
-		serviceType.user_account = request.user
-		serviceType.service_type = row[0] 
-		serviceType.service_name = row[1] 
-		serviceType.save()
+	df_services = pd.read_excel('data/SL - lookup table.xlsx')	
+	
+	df_accounts = df_accounts[df_accounts['Top 40?'] == 'Y']
+	for index, row in df_accounts.iterrows():
+		try:
+			account = models.Account.objects.get(name = row[0])
+			account.is_top40 = True
+			account.save()
+		except:
+			account = None
+			
+		
 		
 	serviceTypes = models.ServiceType.objects.all()
 	return Response([serviceType.service_name for serviceType in serviceTypes])
@@ -98,38 +101,28 @@ def import_services(request):
 @api_view(['GET',])
 def import_accounts(request):
 
-	accounts = models.Account.objects.all()
-	if (len(accounts)>0):
-		return Response('accounts not empty')
-		
-	dataReader = csv.reader(open('accounts.csv'), delimiter=',') 
-	for row in dataReader: 
-		account = models.Account() 
-		account.user_account = request.user
-		account.name = row[0]
-		try:
-			account.account_manager = models.CREmployee.objects.get(short_name = row[1])
-		except:
-			account.account_manager = None
-			
-		 
-		account.sector = row[2] 
-		account.relationship_status = row[3]
-		account.region = row[4]
+	"""accounts = models.Account.objects.all()
+	for account in accounts:
+		account.is_top40 = False 
 		account.save()
-		
-	account = models.Account()
-	account.name = 'Undefined'
-	account.user_account = request.user
-	account.sector = 'Undefined'
-	account.relationship_status = 'Undefined'
-	account.region = 'Undefined'
-	account.save()
-		
-	accounts = models.Account.objects.all()
-	return Response([account.name for account in accounts])
+	"""
+	df_accounts = pd.read_excel('data/TOP40_load.xlsx')	
 	
-
+	df_accounts = df_accounts[df_accounts['Top 40?'] == 'Y']
+	for index, row in df_accounts.iterrows():
+		try:
+			account = models.Account.objects.get(name = row[0])
+			account.is_top40 = True
+			account.save()
+		except:
+			account = None
+			
+		
+		
+	accounts = models.Account.objects.all()	
+	return Response([(account.name + ':' + str(account.is_top40)) for account in accounts])
+	
+"""
 @api_view(['GET',])
 def import_cremployee(request):
 
@@ -148,55 +141,94 @@ def import_cremployee(request):
 		
 	employees = models.CREmployee.objects.all()
 	return Response([employee.name for employee in employees])
-		
+"""
+
+def import_cremployees(df_leads, request):
+	translator = str.maketrans('', '', string.ascii_lowercase)
+	
+	pm_list = df_leads['Full Name (Service Line PM)']
+	originator_list = df_leads['Sales Originator']
+	owners_list = df_leads['Full Name (Owning User)']
+	
+	pm_set = set(pm_list.tolist())
+	originator_set = set(originator_list.tolist())
+	owners_set = set(owners_list.tolist())
+	
+	unique_set =  set(list(pm_set) + list(owners_set) + list(originator_set))
+	
+	for id in set(unique_set):
+		try:
+			employee = models.CREmployee.objects.get(name = id)
+		except:
+			employee = models.CREmployee()
+			employee.name = id
+			employee.user_account = request.user
+			#employee.short_name = id.translate(translator)
+			employee.save()
+	
+	
 @api_view(['GET',])		
 def import_leads(request):
-	leads = models.SalesLead.objects.all()
-	if (len(leads)>0):
-		return Response('leads not empty')
-		
-	dataReader = csv.reader(open('Leads.csv'), delimiter=';') 
-	for row in dataReader: 
-		lead = models.SalesLead() 
-		lead.user_account = request.user
-		lead.status = row[0]
+	"""'Status', 'Account', 'Countries',
+       'Sales Originator', 'Service Group', 'Reference #', 'Created On',
+       'Name', 'Contact', 'Country', 'Est. Revenue (USD)',
+       'Est. Decision Date', 'Sales Lead Owner', 'Sales Lead Title',
+       'Sales Lead', 'Full Name (Service Line PM)',
+       'Full Name (Owning User)'  """
+	   
+	df_leads = pd.read_excel('data/CRM_leads.xlsx')	
+	
+	import_cremployees(df_leads, request)
+	
+	# If SL does not exists - create, otherwise - update
+	for index, row in df_leads.iterrows():
+		lead = None 
 		try:
-			lead.account = models.Account.objects.get(name = row[1])
+			lead = models.SalesLead.objects.get(CRM_id = row["Reference #"])		
 		except:
-			lead.account = models.Account.objects.get(name = 'Undefined')
+			lead = models.SalesLead()
+			lead.status = row['Status']
+			lead.CRM_id = row['Reference #']
+			try:
+				lead.created_on = datetime.strptime(row['Created On'], '%d/%m/%Y  %H:%M')
+			except:
+				lead.created_on = timezone.now
+				
+			try:
+				lead.account = models.Account.objects.get(name = row['Account'])
+			except:
+				account = models.Account()
+				account.name = row['Account']
+				account.region = row['Country']
+				account.account_manager = models.CREmployee.objects.get(name = row['Full Name (Owning User)'])
+				account.user_account = request.user
+				account.save()
+				lead.account = account
+				
+			lead.name = row['Name']
 			
-		lead.country	= row[2]
 		
+		
+		lead.sales_originator = models.CREmployee.objects.get(name = row['Sales Originator'])
+		lead.service_group = row['Service Group']
+		lead.contact = row['Contact']
+		lead.country = row['Country']
+		lead.est_revenue_USD =  float(str(row['Est. Revenue (USD)']).replace(',' , ''))
 		try:
-			lead.owner = models.CREmployee.objects.get(name = row[3])
+			lead.est_decision_date = datetime.strptime(row['Est. Decision Date'], '%d/%m/%Y  %H:%M')
 		except:
-			lead.owner = None
+			lead.est_decision_date = None
+		lead.owner = models.CREmployee.objects.get(name = row['Sales Lead Owner'])
+		lead.pm = models.CREmployee.objects.get(name = row['Full Name (Service Line PM)'])
+		lead.owning_user = models.CREmployee.objects.get(name = row['Full Name (Owning User)'])
 		
+		lead.user_account = request.user
+			
+			
 		try:
 			lead.service_type = models.ServiceType.objects.get(service_name = row[4])
 		except:
 			lead.service_type = None
-		
-		lead.CRM_id =  row[5]
-		if len(row[6])> 0:
-			lead.created_on = datetime.strptime(row[6], '%d/%m/%Y')
-		else:
-			lead.created_on = None
-		if len(row[7])> 0:
-			lead.est_decision_dat = datetime.strptime(row[7], '%d/%m/%Y')
-		else:
-			lead.est_decision_dat = None
-		lead.Probability = row[8]	
-		lead.contact = row[9]
-		lead.status_reason = row[10] 
-		if len(row[11])> 0:
-			lead.actual_close_date = datetime.strptime(row[11], '%d/%m/%Y')
-		else:
-			lead.actual_close_date = None
-			
-		lead.est_revenue_GBP	= row[12]
-		lead.description	= row[13]
-		lead.sales_narrative = row[14]
 		
 		lead.save()
 		
