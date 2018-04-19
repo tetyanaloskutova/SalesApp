@@ -1,4 +1,5 @@
-
+import locale
+	
 from django.db import models
 from django.utils import timezone
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -21,7 +22,7 @@ class CREmployee(models.Model):
 	history = HistoricalRecords()
 		
 	def __str__(self):
-		return '{0} ({1})'.format(self.name, self.short_name)
+		return '{0}'.format(self.name)
 		
 	
 	class Meta:
@@ -45,7 +46,7 @@ class Account(models.Model):
 	account_group = models.ForeignKey(AccountGroup, related_name="+", null = True, on_delete = models.SET_NULL,)
 	
 	name = models.CharField(max_length=256)
-	sector = models.CharField(max_length=256)
+	sector = models.CharField(max_length=256, null = True)
 	
 	SUPER = '1'
 	GOOD = '2'
@@ -61,12 +62,13 @@ class Account(models.Model):
 	relationship_status = models.CharField(max_length=256,choices=TYPE_CHOICES,
 		default=GOOD)
 	
-	region = models.CharField(max_length=256)
+	region = models.CharField(max_length=256, null = True)
 	account_manager = models.ForeignKey(CREmployee, related_name="+", null = True, on_delete = models.SET_NULL,)
 	
+	is_top40 = models.BooleanField(default = False)
+	
 	date_created = models.DateTimeField(default=timezone.now, editable= False)
-	history = HistoricalRecords()
-
+	
 	
 	timezone.make_aware(timezone.datetime.max, timezone.get_default_timezone())
 	date_deleted = models.DateTimeField(default=timezone.datetime.max, editable= False)
@@ -129,6 +131,14 @@ class ServiceType(models.Model):
 			
 		
 class SalesLead(models.Model):
+	""" 'Status', 'Account', 'Countries',
+       'Sales Originator', 'Service Group', 'Reference #', 'Created On',
+       'Name', 'Contact', 'Country', 'Est. Revenue (USD)',
+       'Est. Decision Date', 'Sales Lead Owner', 'Sales Lead Title',
+       'Sales Lead', 'Full Name (Service Line PM)', 'Name (Originating Lead)',
+       'Full Name (Owning User)'  """
+	#locale.setlocale( locale.LC_ALL, 'english_USA' ) 
+	
 	user_account = models.ForeignKey(User, related_name="+", on_delete = models.CASCADE, editable=False)
 	# Status	Account	Country	Owner	Service Group	Reference #	Created On	Est. Decision Date	Probability	Contact	Status Reason	Actual Close Date	Est. Revenue (GBP)	Description	Proposal	Saales Narrative
 	
@@ -145,7 +155,9 @@ class SalesLead(models.Model):
 		default=OPEN)
 		
 	account = models.ForeignKey(Account, related_name="+", null=True, on_delete = models.SET_NULL,)
-	country	= models.CharField(max_length=256)	
+	country	= models.CharField(max_length=256)
+	sales_originator = models.ForeignKey(CREmployee, related_name="+", null=True, on_delete = models.SET_NULL,)		
+	service_group = models.CharField(max_length=256, null=True, blank = True)	
 	owner = models.ForeignKey(CREmployee, related_name="+", null=True, on_delete = models.SET_NULL,)	
 	service_type = models.ForeignKey(ServiceType, related_name="+", null=True, on_delete = models.SET_NULL,)
 	competitors = models.CharField(max_length=256, null=True, blank = True)	
@@ -154,6 +166,7 @@ class SalesLead(models.Model):
 	CRM_id =  models.CharField(max_length=256, null=True, blank = True)	
 	created_on = models.DateTimeField(default=timezone.now, null=True, editable=False)	
 	created_on_date = models.DateField(default=timezone.now, null=True, editable=False)	
+	name = models.CharField(max_length=256)
 	est_decision_date = models.DateField(default=timezone.now, null=True, blank = True)
 	
 	Probability	= models.IntegerField(default=50,
@@ -165,7 +178,10 @@ class SalesLead(models.Model):
 	status_reason = models.CharField(max_length=256, blank = True)
 	actual_close_date = models.DateField(default=timezone.now, null=True, blank = True)
 	actual_close_time = models.DateTimeField(default=timezone.now, null=True, editable=False)
-	est_revenue_GBP	= models.FloatField()
+	est_revenue_USD	= models.FloatField(default = 0, null = True)
+	pm = models.ForeignKey(CREmployee, related_name="+", null=True, on_delete = models.SET_NULL,)		
+	owning_user = models.ForeignKey(CREmployee, related_name="+", null=True, on_delete = models.SET_NULL,)		
+	
 	description	= models.TextField(default = r'''Product:-
 Competition:-
 Partners:-
@@ -175,12 +191,13 @@ Next steps:-
 	
 	next_action = models.TextField(default = '', null=True, blank = True)
 	next_action_date = models.DateField(default=timezone.now, null=True, blank = True)
+	next_action_description = models.TextField(default = '', null=True, blank = True)
 	
 	history = HistoricalRecords()
 
 	
 	def __str__(self):
-		return '{0}: ({1})'.format(self.account, self.status)
+		return '{0}: ({1})'.format(self.name, self.status)
 	
 		
 	class Meta:
