@@ -6,7 +6,7 @@ from simple_history.admin import SimpleHistoryAdmin
 class SalesLeadHistoryAdmin(SimpleHistoryAdmin):
 	list_display = ["account", "owner", "Probability", "next_action_description", "next_action_date"]
 	#form only show open list_display = ["sales lead", "service group", "account",  "service_line_colleagues", "last action", "next_action_date", "probability"]
-	history_list_display = [ "next_action_date", "next_action_description", "user_account"]
+	history_list_display = [ "next_action_date", "next_action_description", 'next_action_person', "user_account"]
 	search_fields = ['CRM_id']
 	#list_filter = ['owner', 'est_decision_date', 'status', "next_action_date"]
 	ordering = ('-owner',)
@@ -16,12 +16,15 @@ class SalesLeadHistoryAdmin(SimpleHistoryAdmin):
 		('Account info', {
 			'fields': ('CRM_id',('account', 'name', 'est_revenue_USD'))
 		}),
+		('Next Action', {
+			'fields': ( "next_action_date", "next_action_description", 'next_action_person'),
+		}),
 		('Service Line', {
 			'fields': (('service_type', 'pm'))
 		}),
-		('Next Action', {
-			'fields': ( "next_action_date", "next_action_description"),
-		}),
+		('Closure',{
+			'fields': (('probability', 'est_decision_date'))
+		})
 	)
 	
 	def has_delete_permission(self, request, obj=None):
@@ -47,8 +50,14 @@ class AccountGroupAdmin(SimpleHistoryAdmin):
 class AccountAdmin(SimpleHistoryAdmin):	
 	list_display = ['account_group', 'name', 'sector', 'relationship_status', 'region', 'account_manager', 'date_created']
 	readonly_fields = ('user_account',)
-	history_list_display = ( "relationship_status",'account_manager')
+	history_list_display = ( 'is_executive', 'is_management', 'is_user')
 	
+	
+	fieldsets = (
+		('Account info', {
+			'fields': ('name', ('is_executive', 'is_management', 'is_user'))
+		}),
+	)
 	def save_model(self, request, obj, form, change):
 		obj.user_account = request.user
 		obj.save()

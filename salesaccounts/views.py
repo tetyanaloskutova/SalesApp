@@ -14,6 +14,7 @@ from rest_framework.decorators import api_view
 from datetime import datetime
 import pandas as pd
 import string
+import openpyxl
 	
 class AccountViewSet(viewsets.ModelViewSet):
 	serializer_class = AccountSerializer
@@ -81,19 +82,32 @@ def index(request, pk):
 @api_view(['GET',])
 def import_services(request):
 
-	df_services = pd.read_excel('data/SL - lookup table.xlsx')	
+	df_service_types = pd.read_excel('data/SL - lookup table.xlsx')
+	df_groups = df_service_types.groupby(['Group', 'Name']).size().reset_index().rename(columns={0:'Count'})	
 	
-	df_accounts = df_accounts[df_accounts['Top 40?'] == 'Y']
-	for index, row in df_accounts.iterrows():
+	for index, row in df_groups.iterrows():
 		try:
-			account = models.Account.objects.get(name = row[0])
-			account.is_top40 = True
-			account.save()
+			service = models.ServiceType.objects.get(service_type = row[0], service_name = row[1])
 		except:
-			account = None
-			
+			service = models.ServiceType()
+			service.service_type = row[0]
+			service.service_name = row[1]
+			service.user_account = request.user
+			service.save()
+				
 		
-		
+	for index, row in df_service_types.iterrows():
+		try:
+			sales_lead = models.SalesLead.objects.get(CRM_id = row[0])
+			try:
+				service = models.ServiceType.objects.get(service_type = row[1], service_name = row[2])
+				sales_lead.service_type = service
+				sales_lead.save()
+			except:
+				pass
+		except:
+			pass
+	
 	serviceTypes = models.ServiceType.objects.all()
 	return Response([serviceType.service_name for serviceType in serviceTypes])
 		
@@ -234,4 +248,55 @@ def import_leads(request):
 		
 	leads = models.SalesLead.objects.all()
 	return Response([lead.name for lead in leads])
+	
+def export_leads_function():
+	leads = models.SalesLead.objects.all().prefetch_related('account', 'service_type')
+
+	df = pd.concat([pd.DataFrame([[lead.status, lead.account.name 
+		,lead.sales_originator.name if lead.sales_originator else 'N/A', lead.service_group, lead.CRM_id
+		,lead.created_on, lead.name, lead.contact,lead.country, lead.est_revenue_USD
+		, lead.est_decision_date, lead.owner.name if lead.owner else 'N/A'
+		, lead.pm.name if lead.pm else 'N/A', lead.Probability, lead.next_action, lead.next_action_description
+		, lead.next_action_date, lead.owner.next_action_person if lead.next_action_person else 'N/A', lead.service_type.service_type
+		,lead.service_type.service_name]], columns=['Status','Account','Sales Originator','Service Group'
+		,'Reference #','Created On','Name', 'Contact', 'Country', 'Est. Revenue (USD)'
+		, 'Est. Decision Date', 'Sales Lead Owner'
+		, 'Full Name (Service Line PM)', 'Probability_Tool', 'Next action', 'Next action description'
+		,'Next action date', 'Next action persion', 'Service line', 'Service line department' ]
+		) for lead in leads],
+		ignore_index=True)
+	
+	writer = pd.ExcelWriter('data/CRM_leads_export.xlsx')
+	df.to_excel(writer, index=False)
+	writer.save()
+	
+@api_view(['GET',])		
+def export_leads(request):	
 		
+	"""
+	df1 = pd.DataFrame.from_records(models.SalesLead.objects.all().prefetch_related('account', 'service_type').values('service_type.service_type'))
+	
+	df = pd.DataFrame(columns=['Status','Account','Sales Originator','Service Group'
+		,'Reference #','Created On','Name', 'Contact', 'Country', 'Est. Revenue (USD)'
+		, 'Est. Decision Date', 'Sales Lead Owner', 'Sales Lead Title'
+		, 'Full Name (Service Line PM)', 'Full Name (Owning User)', 'Probability_Tool', 'Next action'
+		, 'Next action description','Next action date', 'Next action persion', 'Service line', 'Service line department' ])
+	"""
+		
+	"""	
+	return Response(['{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}, {12}, {13}, {14}, {15}, {16}, {17}, {18}, {19}'.format(lead.status, lead.account.name 
+		,lead.sales_originator, lead.service_group, lead.CRM_id
+		,lead.created_on, lead.name, lead.contact, lead.est_revenue_USD
+		, lead.est_decision_date, lead.owner, lead.name
+		, lead.pm, lead.Probability, lead.next_action, lead.next_action_description
+		, lead.next_action_date, lead.next_action_person, lead.service_type.service_type
+		,lead.service_type.service_name)  for lead in leads])
+	"""
+	try :
+		export_leads_function()
+		return Response('Export successful')
+	except Exception as e:
+		return Response('Export unsuccessful, error {0}'.format(str(e)))
+	
+	
+	

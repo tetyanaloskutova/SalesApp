@@ -46,6 +46,10 @@ class Account(models.Model):
 	account_group = models.ForeignKey(AccountGroup, related_name="+", null = True, on_delete = models.SET_NULL,)
 	
 	name = models.CharField(max_length=256)
+	is_executive = models.BooleanField(default = False)
+	is_management = models.BooleanField(default = False)
+	is_user = models.BooleanField(default = False)
+	
 	sector = models.CharField(max_length=256, null = True)
 	
 	SUPER = '1'
@@ -192,6 +196,7 @@ Next steps:-
 	next_action = models.TextField(default = '', null=True, blank = True)
 	next_action_date = models.DateField(default=timezone.now, null=True, blank = True)
 	next_action_description = models.TextField(default = '', null=True, blank = True)
+	next_action_person = models.ForeignKey(CREmployee, related_name="+", null=True, on_delete = models.SET_NULL,)		
 	
 	history = HistoricalRecords()
 
