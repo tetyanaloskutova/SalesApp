@@ -46,12 +46,16 @@ class Account(models.Model):
 	account_group = models.ForeignKey(AccountGroup, related_name="+", null = True, on_delete = models.SET_NULL,)
 	
 	name = models.CharField(max_length=256)
+	is_executive = models.BooleanField(verbose_name='Executive', default = False)
+	is_management = models.BooleanField(verbose_name='Management', default = False)
+	is_user = models.BooleanField(verbose_name='User', default = False)
+	
 	sector = models.CharField(max_length=256, null = True)
 	
-	SUPER = '1'
+	SUPER = '3'
 	GOOD = '2'
-	AVERAGE = '3'
-	COLD = '4'
+	AVERAGE = '1'
+	COLD = '0'
 	
 	TYPE_CHOICES = (
 		(SUPER, 'Super'),
@@ -65,7 +69,7 @@ class Account(models.Model):
 	region = models.CharField(max_length=256, null = True)
 	account_manager = models.ForeignKey(CREmployee, related_name="+", null = True, on_delete = models.SET_NULL,)
 	
-	is_top40 = models.BooleanField(default = False)
+	is_top40 = models.BooleanField(verbose_name = 'Top 40 Account', default = False)
 	
 	date_created = models.DateTimeField(default=timezone.now, editable= False)
 	
@@ -79,7 +83,16 @@ class Account(models.Model):
 		if (self.account_group):
 			return '{0}: {1}'.format(self.account_group, self.name)
 		else:
-			return '{0}'.format(self.name)	
+			rel = ''
+			if self.relationship_status == '1':
+				rel = 'Okay relationship' 
+			else:
+				if self.relationship_status == '2':
+					rel = 'Good relationship'
+				else:
+					rel = 'Excellent relationship'
+					
+			return '{0}: {1}'.format(self.name, rel)	
 	
 	
 	class Meta:
@@ -167,9 +180,9 @@ class SalesLead(models.Model):
 	created_on = models.DateTimeField(default=timezone.now, null=True, editable=False)	
 	created_on_date = models.DateField(default=timezone.now, null=True, editable=False)	
 	name = models.CharField(max_length=256)
-	est_decision_date = models.DateField(default=timezone.now, null=True, blank = True)
+	est_decision_date = models.DateField(verbose_name = 'Estimated close date', default=timezone.now, null=True, blank = True)
 	
-	Probability	= models.IntegerField(default=50,
+	probability	= models.IntegerField(default=50,
 		validators=[
 			MaxValueValidator(100),
 			MinValueValidator(1)
@@ -179,7 +192,7 @@ class SalesLead(models.Model):
 	actual_close_date = models.DateField(default=timezone.now, null=True, blank = True)
 	actual_close_time = models.DateTimeField(default=timezone.now, null=True, editable=False)
 	est_revenue_USD	= models.FloatField(default = 0, null = True)
-	pm = models.ForeignKey(CREmployee, related_name="+", null=True, on_delete = models.SET_NULL,)		
+	pm = models.ForeignKey( CREmployee, related_name="+", null=True, on_delete = models.SET_NULL,verbose_name = 'Project Manager',)		
 	owning_user = models.ForeignKey(CREmployee, related_name="+", null=True, on_delete = models.SET_NULL,)		
 	
 	description	= models.TextField(default = r'''Product:-
@@ -192,6 +205,7 @@ Next steps:-
 	next_action = models.TextField(default = '', null=True, blank = True)
 	next_action_date = models.DateField(default=timezone.now, null=True, blank = True)
 	next_action_description = models.TextField(default = '', null=True, blank = True)
+	next_action_person = models.ForeignKey(CREmployee, related_name="+", null=True, on_delete = models.SET_NULL,)		
 	
 	history = HistoricalRecords()
 
