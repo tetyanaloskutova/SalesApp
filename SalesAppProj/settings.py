@@ -25,7 +25,7 @@ SECRET_KEY = 'a@@o9gyvdqj$t@^wp#j-cf7-*#68_gs=)c%dyg#@cc6-91eup='
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'daana.pythonanywhere.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'salesapp.pythonanywhere.com']
 
 
 # Application definition

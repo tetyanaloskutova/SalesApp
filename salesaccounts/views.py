@@ -256,7 +256,7 @@ def export_leads_function():
 		,lead.sales_originator.name if lead.sales_originator else 'N/A', lead.service_group, lead.CRM_id
 		,lead.created_on, lead.name, lead.contact,lead.country, lead.est_revenue_USD
 		, lead.est_decision_date, lead.owner.name if lead.owner else 'N/A'
-		, lead.pm.name if lead.pm else 'N/A', lead.Probability, lead.next_action, lead.next_action_description
+		, lead.pm.name if lead.pm else 'N/A', lead.probability, lead.next_action, lead.next_action_description
 		, lead.next_action_date, lead.owner.next_action_person if lead.next_action_person else 'N/A', lead.service_type.service_type
 		,lead.service_type.service_name]], columns=['Status','Account','Sales Originator','Service Group'
 		,'Reference #','Created On','Name', 'Contact', 'Country', 'Est. Revenue (USD)'
@@ -288,7 +288,7 @@ def export_leads(request):
 		,lead.sales_originator, lead.service_group, lead.CRM_id
 		,lead.created_on, lead.name, lead.contact, lead.est_revenue_USD
 		, lead.est_decision_date, lead.owner, lead.name
-		, lead.pm, lead.Probability, lead.next_action, lead.next_action_description
+		, lead.pm, lead.probability, lead.next_action, lead.next_action_description
 		, lead.next_action_date, lead.next_action_person, lead.service_type.service_type
 		,lead.service_type.service_name)  for lead in leads])
 	"""
