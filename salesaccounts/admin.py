@@ -4,27 +4,30 @@ from simple_history.admin import SimpleHistoryAdmin
 from django.contrib.admin import SimpleListFilter
 from django.utils.translation import ugettext_lazy as _
 
-class OpenLeadFilter(SimpleListFilter):
-	title = 'status' # or use _('status') for translated title
-	parameter_name = 'status'
+
+
+class Top40Filter(SimpleListFilter):
+	title = 'Top 40' 
+	parameter_name = 'account__is_top40'
 
 	def lookups(self, request, model_admin):
 		return (
-		  ('Open', _('All Open')),)
+		  ('Yes', 'No'),)
 		
 	def queryset(self, request, queryset):
 		if self.value():
-			return queryset.filter(status=self.value())
+			return queryset.filter(account=self.value())
 		else:
-			return queryset.filter(status = 'Open')
-			
+			return queryset.filter(account = 'Open')
+
+		
 class SalesLeadHistoryAdmin(SimpleHistoryAdmin):
-	list_display = [ "account", "owner", "probability", "next_action_description", "next_action_date"]
-	#list_filter = (OpenLeadFilter,	)
+	list_display = [ "account", "owner", "probability", "next_action_description", "next_action_date", "est_decision_date"]
+	list_filter = ('account__is_top40',"next_action_date", 'owner', 'probability')
 	#form only show open list_display = ["sales lead", "service group", "account",  "service_line_colleagues", "last action", "next_action_date", "probability"]
 	history_list_display = [ "next_action_date", "next_action_description", 'next_action_person', "user_account"]
 	search_fields = ['CRM_id']
-	#list_filter = ['owner', 'est_decision_date', 'status', "next_action_date"]
+	#list_filter = ["next_action_date", 'owner', 'probability']
 	ordering = ('-owner',)
 	readonly_fields = ('user_account','CRM_id','name', 'est_revenue_USD')
 	
@@ -71,7 +74,15 @@ class SalesLeadHistoryAdmin(SimpleHistoryAdmin):
 	def has_add_permission(self, request):
 		return False
 		
+	# check this https://stackoverflow.com/questions/23361057/django-comparing-old-and-new-field-value-before-saving	
 	def save_model(self, request, obj, form, change):
+		print(form.cleaned_data.get('account'))
+		print(form.changed_data)
+		print(form.data.get('account'))
+		print(change)
+		print(obj.account)
+		print(request.POST)
+		#obj.account = form.data.get('account')
 		obj.user_account = request.user
 		obj.save()
 		

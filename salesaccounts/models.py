@@ -167,7 +167,7 @@ class SalesLead(models.Model):
 	status = models.CharField(max_length=256,choices=TYPE_CHOICES,
 		default=OPEN)
 		
-	account = models.ForeignKey(Account, related_name="+", null=True, on_delete = models.SET_NULL,)
+	account = models.ForeignKey(Account, related_name="+", null=True, on_delete = models.SET_NULL, blank = True)
 	country	= models.CharField(max_length=256)
 	sales_originator = models.ForeignKey(CREmployee, related_name="+", null=True, on_delete = models.SET_NULL,)		
 	service_group = models.CharField(max_length=256, null=True, blank = True)	
