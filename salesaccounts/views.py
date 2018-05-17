@@ -257,12 +257,12 @@ def export_leads_function():
 		,lead.created_on, lead.name, lead.contact,lead.country, lead.est_revenue_USD
 		, lead.est_decision_date, lead.owner.name if lead.owner else 'N/A'
 		, lead.pm.name if lead.pm else 'N/A', lead.probability, lead.next_action, lead.next_action_description
-		, lead.next_action_date, lead.owner.next_action_person if lead.next_action_person else 'N/A', lead.service_type.service_type
-		,lead.service_type.service_name]], columns=['Status','Account','Sales Originator','Service Group'
+		, lead.next_action_date, str(lead.next_action_person) if lead.next_action_person else 'N/A', lead.service_type.service_type
+		,lead.service_type.service_name, lead.actual_close_date]], columns=['Status','Account','Sales Originator','Service Group'
 		,'Reference #','Created On','Name', 'Contact', 'Country', 'Est. Revenue (USD)'
 		, 'Est. Decision Date', 'Sales Lead Owner'
 		, 'Full Name (Service Line PM)', 'Probability_Tool', 'Next action', 'Next action description'
-		,'Next action date', 'Next action persion', 'Service line', 'Service line department' ]
+		,'Next action date', 'Next action persion', 'Service line', 'Service line department', 'Actual Close Date' ]
 		) for lead in leads],
 		ignore_index=True)
 	
