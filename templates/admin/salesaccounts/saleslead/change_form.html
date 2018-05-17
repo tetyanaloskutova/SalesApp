@@ -2,12 +2,23 @@
 {% load static %}
 
 {% block admin_change_form_document_ready %}
-{{ block.super }}
 
+{{ block.super }}
+	<script type="text/javascript">
+		document.getElementsByName('account')[0].disabled = true;
+	</script>
 {% endblock %}
 
 {% block after_field_sets %}
-	<script type="text/javascript">
-		document.getElementsByName('account')[0].enabled = true;
-	</script>
+	
+{% endblock %}
+
+{% block submit_buttons_bottom %}
+
+	<div class="submit-row">
+		<input type="submit" value="Save" class="default" onclick="document.getElementsByName('account')[0].disabled = false" name="_save" />
+		{% if show_save_and_continue %}<input type="submit" value="Save and continue editing" name="_continue" />{% endif %}
+
+	</div>
+
 {% endblock %}
