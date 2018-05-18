@@ -1,10 +1,17 @@
 from django.contrib import admin
 from .models import *
 from simple_history.admin import SimpleHistoryAdmin
-from django.contrib.admin import SimpleListFilter
+from django.contrib.admin import SimpleListFilter, DateFieldListFilter
 from django.utils.translation import ugettext_lazy as _
+import datetime
+import calendar
 
-
+def add_months(sourcedate,months):
+	month = sourcedate.month - 1 + months
+	year = sourcedate.year + month // 12
+	month = month % 12 + 1
+	day = min(sourcedate.day,calendar.monthrange(year,month)[1])
+	return datetime.date(year,month,day)
 
 class Top40Filter(SimpleListFilter):
 	title = 'Top 40' 
@@ -20,10 +27,36 @@ class Top40Filter(SimpleListFilter):
 		else:
 			return queryset.filter(account = 'Open')
 
+class FutureDateTimeFilter(DateFieldListFilter):
+    def __init__(self, *args, **kwargs):
+        super(FutureDateTimeFilter, self).__init__(*args, **kwargs)
+
+        now = timezone.now()
+        # When time zone support is enabled, convert "now" to the user's time
+        # zone so Django's definition of "Today" matches what the user expects.
+        if timezone.is_aware(now):
+            now = timezone.localtime(now)
+
+        today = now.date()
+
+        self.links += ((
+            (_('Next 7 days'), {
+                self.lookup_kwarg_since: str(today),
+                self.lookup_kwarg_until: str(today + datetime.timedelta(days=7)),
+            }),
+			(_('Next month'), {
+                self.lookup_kwarg_since: str(today),
+                self.lookup_kwarg_until: str(add_months(today,1)),
+            }),
+			(_('Next 2 months'), {
+                self.lookup_kwarg_since: str(today),
+                self.lookup_kwarg_until: str(add_months(today,2)),
+            }),
+        ))
 		
 class SalesLeadHistoryAdmin(SimpleHistoryAdmin):
 	list_display = [ "account", "owner", "probability", "next_action_description", "next_action_date", "est_decision_date"]
-	list_filter = ('account__is_top40',"next_action_date", 'owner', 'probability')
+	list_filter = ('account__is_top40', "next_action_date", ("est_decision_date", FutureDateTimeFilter), 'owner', 'probability')
 	#form only show open list_display = ["sales lead", "service group", "account",  "service_line_colleagues", "last action", "next_action_date", "probability"]
 	history_list_display = [ "next_action_date", "next_action_description", 'next_action_person', "user_account"]
 	search_fields = ['CRM_id']
