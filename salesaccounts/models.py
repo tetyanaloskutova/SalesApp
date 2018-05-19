@@ -64,7 +64,7 @@ class Account(models.Model):
 		(COLD, 'Worrying'),	
 	)
 	relationship_status = models.CharField(max_length=256,choices=TYPE_CHOICES,
-		default=GOOD)
+		default=COLD)
 	
 	region = models.CharField(max_length=256, null = True)
 	account_manager = models.ForeignKey(CREmployee, related_name="+", null = True, on_delete = models.SET_NULL,)
@@ -90,7 +90,10 @@ class Account(models.Model):
 				if self.relationship_status == '2':
 					rel = 'Good relationship'
 				else:
-					rel = 'Excellent relationship'
+					if self.relationship_status == '3':
+						rel = 'Excellent relationship'
+					else:
+						rel = 'No relationship status'
 					
 			return '{0}: {1}'.format(self.name, rel)	
 	
@@ -203,7 +206,7 @@ Next steps:-
 ''', null=True, blank = True)
 	
 	next_action = models.TextField(default = '', null=True, blank = True)
-	next_action_date = models.DateField(default=timezone.now, null=True, blank = True)
+	next_action_date = models.DateField(default=None, null=True, blank = True)
 	next_action_description = models.TextField(default = '', null=True, blank = True)
 	next_action_person = models.ForeignKey(CREmployee, related_name="+", null=True, on_delete = models.SET_NULL,)		
 	

@@ -220,16 +220,20 @@ def import_leads(request):
 				lead.account = account
 				
 			lead.name = row['Name']
+			lead.probability = row['Probability_Tool']
 			
-		
-		
+		try:
+			lead.actual_close_date = datetime.strptime(row['Actual Close Date'], '%d/%m/%Y  %H:%M')
+		except:
+			lead.actual_close_date = None
+		  
 		lead.sales_originator = models.CREmployee.objects.get(name = row['Sales Originator'])
 		lead.service_group = row['Service Group']
 		lead.contact = row['Contact']
 		lead.country = row['Country']
 		lead.est_revenue_USD =  float(str(row['Est. Revenue (USD)']).replace(',' , ''))
 		try:
-			lead.est_decision_date = datetime.strptime(row['Est. Decision Date'], '%d/%m/%Y  %H:%M')
+			lead.est_decision_date = datetime.strptime(row['Est. Decision Date'], '%d/%m/%Y')
 		except:
 			lead.est_decision_date = None
 		lead.owner = models.CREmployee.objects.get(name = row['Sales Lead Owner'])
@@ -258,11 +262,11 @@ def export_leads_function():
 		, lead.est_decision_date, lead.owner.name if lead.owner else 'N/A'
 		, lead.pm.name if lead.pm else 'N/A', lead.probability, lead.next_action, lead.next_action_description
 		, lead.next_action_date, str(lead.next_action_person) if lead.next_action_person else 'N/A', lead.service_type.service_type
-		,lead.service_type.service_name, lead.actual_close_date]], columns=['Status','Account','Sales Originator','Service Group'
+		,lead.service_type.service_name, lead.actual_close_date, lead.account.is_top40]], columns=['Status','Account','Sales Originator','Service Group'
 		,'Reference #','Created On','Name', 'Contact', 'Country', 'Est. Revenue (USD)'
 		, 'Est. Decision Date', 'Sales Lead Owner'
 		, 'Full Name (Service Line PM)', 'Probability_Tool', 'Next action', 'Next action description'
-		,'Next action date', 'Next action persion', 'Service line', 'Service line department', 'Actual Close Date' ]
+		,'Next action date', 'Next action persion', 'Service line', 'Service line department', 'Actual Close Date', 'Is top 40' ]
 		) for lead in leads],
 		ignore_index=True)
 	
