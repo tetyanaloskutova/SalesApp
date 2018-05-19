@@ -220,16 +220,20 @@ def import_leads(request):
 				lead.account = account
 				
 			lead.name = row['Name']
+			lead.probability = row['Probability_Tool']
 			
-		
-		
+		try:
+			lead.actual_close_date = datetime.strptime(row['Actual Close Date'], '%d/%m/%Y  %H:%M')
+		except:
+			lead.actual_close_date = None
+		  
 		lead.sales_originator = models.CREmployee.objects.get(name = row['Sales Originator'])
 		lead.service_group = row['Service Group']
 		lead.contact = row['Contact']
 		lead.country = row['Country']
 		lead.est_revenue_USD =  float(str(row['Est. Revenue (USD)']).replace(',' , ''))
 		try:
-			lead.est_decision_date = datetime.strptime(row['Est. Decision Date'], '%d/%m/%Y  %H:%M')
+			lead.est_decision_date = datetime.strptime(row['Est. Decision Date'], '%d/%m/%Y')
 		except:
 			lead.est_decision_date = None
 		lead.owner = models.CREmployee.objects.get(name = row['Sales Lead Owner'])
