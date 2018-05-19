@@ -188,7 +188,7 @@ class SalesLead(models.Model):
 	probability	= models.IntegerField(default=50,
 		validators=[
 			MaxValueValidator(100),
-			MinValueValidator(1)
+			MinValueValidator(0)
 		])
 	contact	= models.CharField(max_length=256, null = True, blank = True)
 	status_reason = models.CharField(max_length=256, blank = True)
