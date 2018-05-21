@@ -55,13 +55,13 @@ class FutureDateTimeFilter(DateFieldListFilter):
         ))
 		
 class SalesLeadHistoryAdmin(SimpleHistoryAdmin):
-	list_display = [ "account", "owner", "probability", "next_action_description", "next_action_date", "est_decision_date"]
-	list_filter = ('account__is_top40', "next_action_date", ("est_decision_date", FutureDateTimeFilter), 'owner', 'probability')
+	list_display = [ "account", "owning_user", "probability", "next_action_description", "next_action_date", "est_decision_date"]
+	list_filter = ('account__is_top40', "next_action_date", ("est_decision_date", FutureDateTimeFilter), 'owning_user__name', 'probability')
 	#form only show open list_display = ["sales lead", "service group", "account",  "service_line_colleagues", "last action", "next_action_date", "probability"]
 	history_list_display = [ "next_action_date", "next_action_description", 'next_action_person', "user_account"]
 	search_fields = ['CRM_id']
 	#list_filter = ["next_action_date", 'owner', 'probability']
-	ordering = ('-owner',)
+	ordering = ('country','est_decision_date')
 	readonly_fields = ('user_account','CRM_id','name', 'est_revenue_USD')
 	
 	def account_status(self, obj):
@@ -121,6 +121,7 @@ class SalesLeadHistoryAdmin(SimpleHistoryAdmin):
 		
 	def get_queryset(self, request):
 		qs = super(SalesLeadHistoryAdmin, self).get_queryset(request)
+		qs.filter(country='1 - South Africa').update(country=' South Africa')
 		if request.user.is_superuser:
 			return qs
 		return qs.filter(status='Open')	

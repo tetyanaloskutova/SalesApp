@@ -101,6 +101,7 @@ class Account(models.Model):
 	class Meta:
 		verbose_name = 'Account'
 		verbose_name_plural = 'Accounts'
+		ordering = ['name',]
 
 
 
@@ -196,7 +197,7 @@ class SalesLead(models.Model):
 	actual_close_time = models.DateTimeField(default=timezone.now, null=True, editable=False)
 	est_revenue_USD	= models.FloatField(default = 0, null = True)
 	pm = models.ForeignKey( CREmployee, related_name="+", null=True, on_delete = models.SET_NULL,verbose_name = 'Project Manager',)		
-	owning_user = models.ForeignKey(CREmployee, related_name="+", null=True, on_delete = models.SET_NULL,)		
+	owning_user = models.ForeignKey(CREmployee, verbose_name='Lead Owner',related_name="+", null=True, on_delete = models.SET_NULL,)		
 	
 	description	= models.TextField(default = r'''Product:-
 Competition:-
@@ -220,6 +221,7 @@ Next steps:-
 	class Meta:
 		verbose_name = 'Sales Lead'
 		verbose_name_plural = 'Sales Leads'
+		ordering = ['owning_user',]
 
 		
 class Project(models.Model):
