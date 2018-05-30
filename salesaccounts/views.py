@@ -16,6 +16,7 @@ from datetime import datetime
 import pandas as pd
 import string
 import openpyxl
+import os
 	
 class AccountViewSet(viewsets.ModelViewSet):
 	serializer_class = AccountSerializer
@@ -309,4 +310,8 @@ def export_leads(request):
 		return Response('Export unsuccessful, error {0}'.format(str(e)))
 	
 	
+@login_required
+@api_view(['GET',])		
+def get_current_directory(request):
+	return Response(os.getcwd())
 	

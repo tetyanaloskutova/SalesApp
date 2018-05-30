@@ -13,6 +13,7 @@ router = DefaultRouter(trailing_slash=False)
 
 urlpatterns = [
     # API URIs
+	url(r'^get_current_directory/$', get_current_directory, name='get_current_directory'),
 	url(r'^import_leads/$', import_leads, name='import_leads'),
 	url(r'^export_leads/$', export_leads, name='export_leads'),
 	url(r'^import_services/$', import_services, name='import_services'),
