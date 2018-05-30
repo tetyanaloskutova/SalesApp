@@ -29,13 +29,14 @@ Owner	Status	Account	Countries	Owner	Service Group	Reference #	Created On	Est. R
 		
 		
 # Irregular updates
-Irregular updates can be done on
-1. Accounts belonging to Top 40. Put Top40_load.xlsx into \data folder on the webserver and run salesaccounts\import_leads
-2. Service leads could be imported in the same way
+Irregular updates can be done as follows:
+1. Check the location of the \data folder on the server using http://salesapp.pythonanywhere.com/salesaccounts/get_current_directory/
+2. Accounts belonging to Top 40. Put Top40_load.xlsx into \data folder on the webserver and run salesaccounts\import_leads
+3. Service leads could be imported in the same way
 
 
 # Exports 
-Run salesaccounts\export_leads and download the file from \data folder
+Run salesaccounts\export_leads and download the file from \data folder (Check the location of the \data folder on the server using http://http://salesapp.pythonanywhere.com/salesaccounts/get_current_directory/)
 
 # Rights
 Admin rights are required for:
