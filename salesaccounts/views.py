@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from rest_framework import viewsets
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.response import Response
@@ -79,6 +80,7 @@ def index(request, pk):
 	return render(request, 'risktype.html', context)	
 """	
 
+@login_required
 @api_view(['GET',])
 def import_services(request):
 
@@ -180,7 +182,7 @@ def import_cremployees(df_leads, request):
 			#employee.short_name = id.translate(translator)
 			employee.save()
 	
-	
+@login_required
 @api_view(['GET',])		
 def import_leads(request):
 	"""'Status', 'Account', 'Countries',
@@ -261,8 +263,11 @@ def export_leads_function():
 		,lead.created_on, lead.name, lead.contact,lead.country, lead.est_revenue_USD
 		, lead.est_decision_date, lead.owner.name if lead.owner else 'N/A'
 		, lead.pm.name if lead.pm else 'N/A', lead.probability, lead.next_action, lead.next_action_description
-		, lead.next_action_date, str(lead.next_action_person) if lead.next_action_person else 'N/A', lead.service_type.service_type
-		,lead.service_type.service_name, lead.actual_close_date, lead.account.is_top40]], columns=['Status','Account','Sales Originator','Service Group'
+		, lead.next_action_date, str(lead.next_action_person) if lead.next_action_person else 'N/A'
+		, lead.service_type.service_type if lead.service_type else 'N/A'
+		,lead.service_type.service_name if lead.service_type else 'N/A'
+		, lead.actual_close_date
+		, lead.account.is_top40]], columns=['Status','Account','Sales Originator','Service Group'
 		,'Reference #','Created On','Name', 'Contact', 'Country', 'Est. Revenue (USD)'
 		, 'Est. Decision Date', 'Sales Lead Owner'
 		, 'Full Name (Service Line PM)', 'Probability_Tool', 'Next action', 'Next action description'
@@ -274,6 +279,7 @@ def export_leads_function():
 	df.to_excel(writer, index=False)
 	writer.save()
 	
+@login_required
 @api_view(['GET',])		
 def export_leads(request):	
 		
