@@ -18,6 +18,7 @@ import string
 import openpyxl
 import os
 from django.utils import timezone
+import openpyxl
 	
 class AccountViewSet(viewsets.ModelViewSet):
 	serializer_class = AccountSerializer
@@ -175,6 +176,7 @@ def import_cremployees(df_leads, request):
 	unique_set =  set(list(pm_set) + list(owners_set) + list(originator_set))
 	
 	for id in set(unique_set):
+		print(id)
 		try:
 			employee = models.CREmployee.objects.get(name = id)
 		except:
@@ -194,8 +196,43 @@ def import_leads(request):
        'Sales Lead', 'Full Name (Service Line PM)',
        'Full Name (Owning User)'  """
 	   
-	df_leads = pd.read_excel('data/CRM_leads.xlsx')	
+	#df_leads = pd.read_excel('data/CRM_leads.xlsx')	
+	report_folder = r"""C:\Users\tetyana.loskutova\Documents\Control Risks\Sales App""" + '\\'
+	csv_path =report_folder + 'SA Sales by Owner - Tableau Build 2.xlsx'
+	df_accounts = pd.read_excel(csv_path)
+	columns = df_accounts.iloc[[4]].values[0]
+	columns[4] = 'Sales Originator'
+	df_accounts.columns = columns
+	df_accounts.drop(df_accounts.index[[0,1,2,3,4]], inplace = True)
+
+	df_accounts = df_accounts.loc[pd.isna(df_accounts["Owner"])]
+	df_accounts = df_accounts[['Status', 'Account', 'Countries',
+		   'Sales Originator', 'Service Group', 'Reference #', 'Created On',
+		   'Name', 'Contact', 'Country', 'Est. Revenue (USD)',
+		   'Est. Decision Date', 'Sales Lead Owner', 'Sales Lead Title',
+		   'Sales Lead', 'Full Name (Service Line PM)',
+		   'Full Name (Owning User)', 'Actual Close Date','Probability']]
 	
+	df_accounts.rename( {'Probability':'Probability_Tool'}, axis='columns', inplace=True)
+	df_accounts['Probability_Tool'].fillna(0, inplace=True)
+	df_accounts['Next action'] = ''
+	df_accounts['Next action description'] = ''
+	df_accounts['Next action date'] = ''
+	df_accounts['Next action persion'] = ''
+	df_accounts['Service line'] = ''
+	df_accounts['Service line department'] = ''
+	df_accounts['Is_top40'] = ''
+	df_accounts['Full Name (Service Line PM)'].fillna('To be set', inplace=True)
+	df_accounts['Sales Originator'].fillna('To be set', inplace=True)
+	df_accounts['Full Name (Owning User)'].fillna('To be set', inplace=True)
+	df_accounts['Est. Revenue (USD)'].fillna(0, inplace=True)
+	df_accounts['Created On'].fillna(timezone.now(), inplace = True)
+	df_accounts['Actual Close Date'].fillna(datetime.date(datetime.max), inplace = True)
+	df_accounts['Est. Decision Date'].fillna(datetime.date(datetime.max), inplace = True)
+	
+	
+	df_leads = df_accounts
+
 	import_cremployees(df_leads, request)
 	
 	# If SL does not exists - create, otherwise - update
@@ -207,10 +244,6 @@ def import_leads(request):
 			lead = models.SalesLead()
 			lead.status = row['Status']
 			lead.CRM_id = row['Reference #']
-			try:
-				lead.created_on = datetime.strptime(row['Created On'], '%d/%m/%Y  %H:%M')
-			except:
-				lead.created_on = timezone.now()
 				
 			try:
 				lead.account = models.Account.objects.get(name = row['Account'])
@@ -227,7 +260,13 @@ def import_leads(request):
 			lead.probability = row['Probability_Tool']
 			
 		try:
-			lead.actual_close_date = datetime.strptime(row['Actual Close Date'], '%d/%m/%Y  %H:%M')
+			print(row['Created On'])
+			lead.created_on = row['Created On'] #datetime.strptime(row['Created On'], '%d/%m/%Y %H:%M')
+		except:
+			lead.created_on = timezone.now()
+			
+		try:
+			lead.actual_close_date = row['Actual Close Date'] #datetime.strptime(row['Actual Close Date'], '%d/%m/%Y %H:%M')
 		except:
 			lead.actual_close_date = None
 		  
@@ -237,10 +276,10 @@ def import_leads(request):
 		lead.country = row['Country']
 		lead.est_revenue_USD =  float(str(row['Est. Revenue (USD)']).replace(',' , ''))
 		try:
-			lead.est_decision_date = datetime.strptime(row['Est. Decision Date'], '%d/%m/%Y')
+			lead.est_decision_date = row['Est. Decision Date'] # datetime.strptime(row['Est. Decision Date'], '%d/%m/%Y %H:%M')
 		except:
 			lead.est_decision_date = None
-		lead.owner = models.CREmployee.objects.get(name = row['Sales Lead Owner'])
+		lead.owner = models.CREmployee.objects.get(name = row['Full Name (Service Line PM)'])
 		lead.pm = models.CREmployee.objects.get(name = row['Full Name (Service Line PM)'])
 		lead.owning_user = models.CREmployee.objects.get(name = row['Full Name (Owning User)'])
 		
@@ -277,7 +316,9 @@ def export_leads_function():
 		) for lead in leads],
 		ignore_index=True)
 	
-	writer = pd.ExcelWriter('data/CRM_leads_export.xlsx')
+	writer = pd.ExcelWriter('data/CRM_leads_export.xlsx',
+                        engine='xlsxwriter',
+                        options={'remove_timezone': True})
 	df.to_excel(writer, index=False)
 	writer.save()
 	
