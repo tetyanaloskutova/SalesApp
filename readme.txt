@@ -8,7 +8,7 @@ Filter Summary
  "																								
 Owner	Status	Account	Countries	Owner	Service Group	Reference #	Created On	Est. Revenue	Est. Revenue (GBP)	Name	Contact	Country	Est. Revenue (USD)	Est. Decision Date	Sales Lead Owner	Sales Lead Title	Sales Lead	Full Name (Service Line PM)	Name (Originating Lead)	Full Name (Owning User)	Actual Close Date	Probability	Probability of WIN
 
-3. Rename the file CRM_Leads.xlsx and [ut the file into data\ folder on web server and run salesaccounts\import_leads
+3. Rename the file CRM_Leads.xlsx and put the file into data\ folder on web server and run salesaccounts\import_leads
 
 #Fields updated on import from CRM:
 ['Sales Originator'])
