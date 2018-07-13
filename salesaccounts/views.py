@@ -17,6 +17,7 @@ import pandas as pd
 import string
 import openpyxl
 import os
+from django.utils import timezone
 	
 class AccountViewSet(viewsets.ModelViewSet):
 	serializer_class = AccountSerializer
@@ -209,7 +210,7 @@ def import_leads(request):
 			try:
 				lead.created_on = datetime.strptime(row['Created On'], '%d/%m/%Y  %H:%M')
 			except:
-				lead.created_on = timezone.now
+				lead.created_on = timezone.now()
 				
 			try:
 				lead.account = models.Account.objects.get(name = row['Account'])
