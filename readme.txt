@@ -1,4 +1,4 @@
-# Regular updates from CRM
+﻿# Regular updates from CRM
 
 1. Get CRM extract SA Sales by Owner - Tableau Build 2 in EXCEL format
 2. Verify that the header looks like this:
@@ -8,13 +8,14 @@ Filter Summary
  "																								
 Owner	Status	Account	Countries	Owner	Service Group	Reference #	Created On	Est. Revenue	Est. Revenue (GBP)	Name	Contact	Country	Est. Revenue (USD)	Est. Decision Date	Sales Lead Owner	Sales Lead Title	Sales Lead	Full Name (Service Line PM)	Name (Originating Lead)	Full Name (Owning User)	Actual Close Date	Probability	Probability of WIN
 
-3. Rename the file CRM_Leads.xlsx and put the file into data\ folder on web server and run salesaccounts\import_leads
+3. Put the file ('SA Sales by Owner - Tableau Build 2.xlsx') into data\ folder on web server and run salesaccounts\import_leads
 
 #Fields updated on import from CRM:
 ['Sales Originator'])
 ['Service Group']
 ['Contact']
 ['Country']
+['Created On']
 ['Est. Revenue (USD)'])
 ['Est. Decision Date'], 
 ['Sales Lead Owner'])

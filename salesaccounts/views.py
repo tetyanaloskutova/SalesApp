@@ -197,7 +197,7 @@ def import_leads(request):
        'Full Name (Owning User)'  """
 	   
 	#df_leads = pd.read_excel('data/CRM_leads.xlsx')	
-	report_folder = r"""C:\Users\tetyana.loskutova\Documents\Control Risks\Sales App""" + '\\'
+	report_folder = "data\\" #r"""C:\Users\tetyana.loskutova\Documents\Control Risks\Sales App""" + '\\'
 	csv_path =report_folder + 'SA Sales by Owner - Tableau Build 2.xlsx'
 	df_accounts = pd.read_excel(csv_path)
 	columns = df_accounts.iloc[[4]].values[0]
